@@ -1,5 +1,16 @@
-# vl-convert-service
-This project defines a REST API to [VlConvert](https://github.com/vega/vl-convert) hosted on Vercel at https://vl-convert-service.vercel.app.
+# VL-Convert Service - Self-Hosted
+
+This project is a containerized, self-hosted version of the [Vega VL-Convert Service](https://github.com/vega/vl-convert-service). It migrates the original Vercel serverless functions to a Flask web application that can be deployed in Docker containers for better control, reliability, and integration with your own infrastructure.
+
+## Features
+
+- **Self-hosted**: Run on your own servers instead of relying on external services
+- **Docker containerized**: Easy deployment and scaling
+- **API compatible**: Maintains the same API endpoints as the original Vercel service
+- **Optimized fonts**: Uses web-optimized WOFF fonts downloaded from CDN during build
+- **Production ready**: Includes gunicorn WSGI server and proper security practices
+
+The service provides a REST API to [VlConvert](https://github.com/vega/vl-convert) for converting Vega-Lite and Vega specifications to various formats.
 
 # Endpoints
 The following endpoints are available
@@ -31,7 +42,7 @@ Convert a Vega-Lite spec to a PDF document. The Vega-Lite spec should be provide
  - `vl_version`: The Vega-Lite version.
  - `theme`: Named theme as supported by [vega-themes](https://github.com/vega/vega-themes).
  - `scale`: Scale factor for the resulting image size. Defaults to 1.
- 
+
 ## POST `/api/vg2svg`
 Convert a Vega spec to an SVG image. The Vega spec should be provided as the request body..
 
@@ -43,37 +54,65 @@ Convert a Vega spec to a PNG image. The Vega spec should be provided as the requ
 ## POST `/api/vg2pdf`
 Convert a Vega spec to a PDF document. The Vega spec should be provided as the request body. The following optional query parameters are supported:
  - `scale`: Scale factor for the resulting image size. Defaults to 1.
- 
+
 ## Curl usage
 Here is an example of converting a Vega-Lite spec to a PNG image using curl. A 2.0 scale factor and dark theme are specified as query parameters.
 
+Example using your self-hosted service:
 ```bash
-curl -X POST "https://vl-convert-service.vercel.app/api/vl2png?scale=2.0&theme=dark" \
+curl -X POST "http://localhost:8080/api/vl2png?scale=2.0&theme=dark" \
      -d '{"$schema": "https://vega.github.io/schema/vega-lite/v5.json", "data": {"url": "data/movies.json"}, "mark": "circle", "encoding": {"x": {"bin": {"maxbins": 10}, "field": "IMDB Rating"}, "y": {"bin": {"maxbins": 10}, "field": "Rotten Tomatoes Rating"}, "size": {"aggregate": "count"}}}' \
-     -o chart.png  
+     -o chart.png
 ```
 
-# Development
-The REST API can be server locally using the [Vercel CLI](https://vercel.com/docs/cli)
-```
-vercel dev
-```
+# Quick Start
 
-This will launch service on http://localhost:3000
+## Using Docker (Recommended)
 
-## Running tests
-
-After starting the development server, tests may can be run with:
+Build and run the containerized service:
 
 ```bash
-pipenv run pytest -s tests
+# Build the Docker image
+docker build -t vl-convert-service .
+
+# Run the container
+docker run -p 8080:8080 vl-convert-service
 ```
 
-Always run tests locally before pushing changes
+Or use Docker Compose for easier development:
 
-## Updating vl-convert
-Update the version of vl-convert-python in `Pipfile`, the run:
+```bash
+# Start the service
+docker-compose up
 
+# Stop the service
+docker-compose down
 ```
-pipenv lock
+
+The service will be available at `http://localhost:8080`
+
+## Local Development
+
+For local development without Docker:
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the Flask application
+python app.py
 ```
+
+## Validation
+
+Test the service with the included validation script:
+
+```bash
+python verify_migration.py
+```
+
+This validates that all endpoints are working correctly and producing the expected responses.
