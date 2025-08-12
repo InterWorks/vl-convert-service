@@ -1,0 +1,57 @@
+name: Release & Publish Container
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  semantic-release:
+    runs-on: us-east-2-development
+    outputs:
+      new_version: ${{ steps.release.outputs.new_release_version }}
+      released: ${{ steps.release.outputs.new_release_published }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run semantic-release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release || true
+          if [ -f .release-version ]; then
+            echo "new_release_version=$(cat .release-version)" >> $GITHUB_OUTPUT
+            echo "new_release_published=true" >> $GITHUB_OUTPUT
+          else
+            echo "new_release_published=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-push:
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
+    runs-on: us-east-2-development-docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Docker image
+        run: |
+          IMAGE=ghcr.io/${{ github.repository }}:${{ needs.semantic-release.outputs.new_version }}
+          echo "Building and pushing $IMAGE"
+          docker build -t "$IMAGE" -t ghcr.io/${{ github.repository }}:latest .
+          docker push "$IMAGE"
