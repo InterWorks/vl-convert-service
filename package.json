@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "This project is a containerized, self-hosted version of the [Vega VL-Convert Service](https://github.com/vega/vl-convert-service). It migrates the original Vercel serverless functions to a Flask web application that can be deployed in Docker containers for better control, reliability, and integration with your own infrastructure.",
+  "main": "release.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InterWorks/vl-convert-service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/InterWorks/vl-convert-service/issues"
+  },
+  "homepage": "https://github.com/InterWorks/vl-convert-service#readme",
+  "devDependencies": {
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.4",
+    "semantic-release": "^24.2.7"
+  }
+}
