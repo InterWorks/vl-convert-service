@@ -60,5 +60,5 @@ jobs:
           REGISTRY_CLEAN="${REGISTRY,,}"
           IMAGE="${REGISTRY_CLEAN}:${{ needs.semantic-release.outputs.new_version }}"
           echo "Building and pushing $IMAGE"
-          docker build -t "$IMAGE" -t ghcr.io/${REGISTRY_CLEAN}:latest .
+          docker build -t "$IMAGE" -t ${REGISTRY_CLEAN}:latest .
           docker push "$IMAGE"
