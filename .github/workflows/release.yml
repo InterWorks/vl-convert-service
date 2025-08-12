@@ -60,6 +60,11 @@ jobs:
       #     echo "Building and pushing $IMAGE"
       #     docker build -t "$IMAGE" -t ${REGISTRY_CLEAN}:latest .
       #     docker push "$IMAGE"
+      - name: Setup Buildah
+        run: |
+          sudo apt-get -y update
+          sudo apt-get install -y buildah
+          echo "Buildah installed successfully"
       - name: Buildah Action
         id: build-image
         uses: redhat-actions/buildah-build@v2
