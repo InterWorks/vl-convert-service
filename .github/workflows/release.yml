@@ -42,23 +42,38 @@ jobs:
     permissions:
       contents: read
       packages: write
-      attestations: write
-      id-token: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      # - name: Log in to GHCR
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build & Push Docker image
+      #   run: |
+      #     REGISTRY=ghcr.io/${{ github.repository }}
+      #     REGISTRY_CLEAN="${REGISTRY,,}"
+      #     IMAGE="${REGISTRY_CLEAN}:${{ needs.semantic-release.outputs.new_version }}"
+      #     echo "Building and pushing $IMAGE"
+      #     docker build -t "$IMAGE" -t ${REGISTRY_CLEAN}:latest .
+      #     docker push "$IMAGE"
+      - name: Buildah Action
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          registry: ghcr.io
+          image: buildah
+          tags: latest ${{ github.sha }} ${{ needs.semantic-release.outputs.new_version}}
+          containerfiles: |
+            ./Dockerfile
+      - name: Push To ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/interworks
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build & Push Docker image
-        run: |
-          REGISTRY=ghcr.io/${{ github.repository }}
-          REGISTRY_CLEAN="${REGISTRY,,}"
-          IMAGE="${REGISTRY_CLEAN}:${{ needs.semantic-release.outputs.new_version }}"
-          echo "Building and pushing $IMAGE"
-          docker build -t "$IMAGE" -t ${REGISTRY_CLEAN}:latest .
-          docker push "$IMAGE"
