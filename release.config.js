@@ -6,7 +6,7 @@ module.exports = {
     '@semantic-release/release-notes-generator',
     '@semantic-release/github',
     [
-      'semantic-release-exec',
+      '@semantic-release/exec',
       {
         prepareCmd: 'echo ${nextRelease.version} > .release-version',
       },
