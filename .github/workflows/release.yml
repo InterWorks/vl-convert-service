@@ -38,7 +38,7 @@ jobs:
   build-and-push:
     needs: semantic-release
     if: needs.semantic-release.outputs.released == 'true'
-    runs-on: us-east-2-development-docker
+    runs-on: us-east-2-development-k8s
     permissions:
       contents: read
       packages: write
