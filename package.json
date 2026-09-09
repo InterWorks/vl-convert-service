@@ -22,7 +22,7 @@
   "homepage": "https://github.com/InterWorks/vl-convert-service#readme",
   "devDependencies": {
     "@semantic-release/exec": "^7.1.0",
-    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/git": "^11.0.0",
     "@semantic-release/github": "^12.0.0",
     "semantic-release": "^25.0.0"
   }
